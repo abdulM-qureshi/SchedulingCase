@@ -62,222 +62,123 @@ After each schedule is generated, the output will be parsed and assessed using t
 These metrics will be logged per run to track model performance over time and drive iteration in prompt tuning or logic refinement.
 
 
-<H1> Code Explaination </H1>
-
-
- 🧠 Kindergarten Schedule Optimizer (AI-Powered)
-
-This Django-based API endpoint receives staff and room scheduling data for a kindergarten, processes constraints and availability, and uses OpenAI's GPT model to generate an optimized weekly schedule. It further evaluates the generated schedule for rule violations, completeness, fairness, and coverage.
-
-
-
- 📂 File Overview
-
-Main File: `views.py`
-Frameworks/Libraries: Django, OpenAI API, dotenv, datetime, logging, JSON
-
-
-
- 🔧 Step-by-Step Code Breakdown
-
- 1. Import Dependencies
-
-python
-from django.views.decorators.csrf import csrf_exempt
-from django.http import JsonResponse
-from dotenv import load_dotenv
-from datetime import datetime
-
-
- These modules handle HTTP requests, environment variables, and time tracking for the API.
-
-python
-import logging, openai, json, time, os, re
-
-
- Required for logging, interfacing with OpenAI API, JSON parsing, file/environment access, and regular expressions.
-
-
-
- 2. Environment Setup and Logging
-
-python
-load_dotenv()   Load API keys and other environment variables
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
-openai.api_key = os.getenv('OPENAI_API_KEY')
-
-
- Loads `.env` file.
- Initializes logging for debugging.
- Retrieves OpenAI API key from environment variables.
-
-
-
- 3. Main View: `brikilund`
-
-python
-@csrf_exempt
-def brikilund(request):
-
-
- Disables CSRF validation (for API endpoint).
- Begins the main schedule generation logic.
-
- a. Start Processing Timer
-
-python
-start_time = datetime.now()
-
-
- Records the start time for performance measurement.
-
- b. Extract Input Context
-
-python
-context , pedagogues, assistants, helpers  = _collect_context_from_request(request)
-
-
- Parses input JSON and structures staff, room, and constraints data.
-
- c. Call Optimization Function
-
-python
-schedule_text = _optimize_schedule(context)
-
-
- Sends structured data to GPT for generating a weekly schedule.
-
- d. Evaluate the Output
-
-python
-violations = _check_violations(pedagogues, assistants, helpers)
-completeness_result = _check_output_completeness(schedule_text, context)
-fairness_result = _calculate_fairness_score(schedule_text, context)
-coverage_result = _calculate_coverage_score(schedule_text, context)
-
-
- Runs rule checks, evaluates completeness of the output, and calculates fairness and coverage.
-
- e. Respond to Client
-
-python
-return JsonResponse({...})
-
-
- Returns the optimized schedule and metadata like violations, timing, and scores as JSON.
-
- f. Error Handling
-
-python
-except Exception as e:
-    return JsonResponse({"error": str(e), ...}, status=400)
-
-
- Returns a proper error message in case of failure.
-
-
-
- 4. \_collect\_context\_from\_request(request)
-
- Parses JSON POST  to extract:
-
-   Total staff and breakdowns (pedagogues, assistants, helpers)
-   Staff details (name, age, shift time)
-   Room details and ratios
-   Schedule blocks and time ranges
-   Hard/soft constraints
-   Individual staff availability
-   Desired outcomes and LLM instruction
-
- Returns:
-
-   `context` for GPT input
-   `pedagogues`, `assistants`, `helpers` list for further validation
-
-
-
- 5. \_check\_violations(...)
-
- Checks basic hard constraints:
-
-   At least one pedagogue is scheduled.
-   Assistants and helpers are not left alone.
- Returns a list of violations (if any).
-
-
-
- 6. \_optimize\_schedule(context)
-
- Composes a prompt with system and user roles for GPT.
- Sends request to OpenAI's `o3` model to generate a weekly schedule.
- Extracts and returns only the GPT-generated message content.
-
-
-
- 7. Time Utility Functions
-
-python
-def time_to_minutes(t)
-def parse_time_block(block_str)
-
-
- Convert time strings like `07:00` to total minutes since midnight.
- Parse ranges like `07:00–08:00` or `15:30–Close`.
-
-
-
- 8. \_check\_output\_completeness(schedule\_text, context)
-
- Validates whether the schedule contains entries for each required time block and role.
- Placeholder in code (`...`) suggests further implementation is pending or cut off.
-
-
-
- ✅ Planned / Additional Functions (Assumed)
-
-python
-_calculate_fairness_score(schedule_text, context)
-_calculate_coverage_score(schedule_text, context)
-
-
- Likely compute:
-
-   Distribution of shifts to ensure fairness
-   Room and role coverage across the schedule
-
-
-
- 🧪 Sample Request (JSON POST)
-
-json
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Kindergarten Schedule Optimizer - Code Explanation</title>
+  <style>
+    body { font-family: Arial, sans-serif; line-height: 1.6; margin: 30px; }
+    h1, h2, h3 { color: #4A90E2; }
+    ul { margin-left: 20px; }
+    code { background: #f4f4f4; padding: 2px 4px; border-radius: 3px; }
+  </style>
+</head>
+<body>
+
+  <h1>🧠 Kindergarten Schedule Optimizer - Code Explanation</h1>
+
+  <p>This Django project creates an AI-powered weekly schedule for a kindergarten. It takes staff availability and room details, sends them to the OpenAI model, and returns an optimized, fair, and rule-compliant schedule in response.</p>
+
+  <h2>🔧 How It Works (Step-by-Step)</h2>
+
+  <h3>1. Import Modules</h3>
+  <p>It imports useful tools to:</p>
+  <ul>
+    <li>Handle HTTP requests (<code>django</code>)</li>
+    <li>Use environment variables (<code>dotenv</code>)</li>
+    <li>Work with time (<code>datetime</code>)</li>
+    <li>Call GPT API (<code>openai</code>)</li>
+    <li>Log info and debug (<code>logging</code>)</li>
+  </ul>
+
+  <h3>2. Setup Environment and Logging</h3>
+  <ul>
+    <li>Loads API key from <code>.env</code> file</li>
+    <li>Sets up logging for debugging</li>
+    <li>Connects to the OpenAI GPT API</li>
+  </ul>
+
+  <h3>3. Main Function: <code>brikilund</code></h3>
+  <p>This is the heart of the code that runs when the user sends a request.</p>
+  <ol>
+    <li><strong>Start a timer</strong> – to measure how long the process takes</li>
+    <li><strong>Extract user input</strong> – staff names, shifts, rooms, constraints</li>
+    <li><strong>Send data to GPT</strong> – to generate an optimized weekly schedule</li>
+    <li><strong>Check the result:</strong>
+      <ul>
+        <li>Any violations (e.g., no assistant left alone)</li>
+        <li>Completeness (does it cover all shifts?)</li>
+        <li>Fairness (is work equally divided?)</li>
+        <li>Coverage (are all roles and rooms handled?)</li>
+      </ul>
+    </li>
+    <li><strong>Send back a JSON response</strong> with the generated schedule and analysis</li>
+    <li><strong>If there's an error</strong>, return an error message</li>
+  </ol>
+
+  <h3>4. <code>_collect_context_from_request(request)</code></h3>
+  <p>Parses incoming data to build a structure that GPT can understand, including:</p>
+  <ul>
+    <li>Staff types and names (pedagogues, assistants, helpers)</li>
+    <li>Room rules and required ratios</li>
+    <li>Available time blocks and special conditions</li>
+  </ul>
+
+  <h3>5. <code>_check_violations()</code></h3>
+  <p>Ensures basic safety and scheduling rules are not broken, like:</p>
+  <ul>
+    <li>Always having at least one pedagogue</li>
+    <li>Never leaving assistants or helpers alone</li>
+  </ul>
+
+  <h3>6. <code>_optimize_schedule(context)</code></h3>
+  <p>Sends the context (structured input) to OpenAI GPT with a crafted prompt and gets back the generated schedule as text.</p>
+
+  <h3>7. Time Utility Functions</h3>
+  <ul>
+    <li><code>time_to_minutes()</code> – Converts "08:30" to total minutes</li>
+    <li><code>parse_time_block()</code> – Parses ranges like "08:00–09:00"</li>
+  </ul>
+
+  <h3>8. Completeness and Fairness Checks</h3>
+  <ul>
+    <li><code>_check_output_completeness()</code> – Are all blocks filled?</li>
+    <li><code>_calculate_fairness_score()</code> – Is work balanced?</li>
+    <li><code>_calculate_coverage_score()</code> – Are all roles covered?</li>
+  </ul>
+
+  <h2>📤 What Does It Expect from the User?</h2>
+  <p>A JSON request like this:</p>
+  <pre>
 {
   "total_staff": 13,
   "no_of_pedagogues": 6,
   "pedagogue_name_1": "Alice",
   ...
 }
+  </pre>
+  <p>Each staff member's availability, shift preferences, and more are included.</p>
 
+  <h2>✅ What Does It Return?</h2>
+  <ul>
+    <li>A JSON response with the weekly schedule</li>
+    <li>List of any rule violations</li>
+    <li>Score of how fair and complete the schedule is</li>
+    <li>Time taken to process</li>
+  </ul>
 
- Include individual staff availability and shift preferences as keys.
- API responds with JSON containing the generated schedule and analysis.
+  <h2>🧠 Model Used</h2>
+  <p>The AI model is <strong>OpenAI GPT (o3-reasoning-model)</strong> – good for structured and logical outputs.</p>
 
+  <h2>⚠️ Things to Keep in Mind</h2>
+  <ul>
+    <li>The <code>.env</code> file must include the <code>OPENAI_API_KEY</code></li>
+    <li>The prompt sent to GPT should be carefully written for good results</li>
+    <li>Although designed for kindergarten, it can be adapted for any team-based schedule</li>
+  </ul>
 
-
- 🧠 Model Used
-
-json
-"model": "o3-reasoning-model"
-
-
- Indicates the GPT model selected for optimized, structured reasoning.
-
-
-
- ⚠️ Notes
-
- Make sure `.env` file contains `OPENAI_API_KEY`
- Schedule generation assumes prompt engineering for reliability
- Designed for kindergarten use cases but adaptable to other scheduling systems
+</body>
+</html>
 
 
