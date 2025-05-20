@@ -65,219 +65,219 @@ These metrics will be logged per run to track model performance over time and dr
 <H1> Code Explaination </H1>
 
 
-body 🧠 Kindergarten Schedule Optimizer (AI-Powered)
+ 🧠 Kindergarten Schedule Optimizer (AI-Powered)
 
 This Django-based API endpoint receives staff and room scheduling data for a kindergarten, processes constraints and availability, and uses OpenAI's GPT model to generate an optimized weekly schedule. It further evaluates the generated schedule for rule violations, completeness, fairness, and coverage.
 
-body
 
-bodybody 📂 File Overview
 
-bodybodyMain File:bodybody `views.py`
-bodybodyFrameworks/Libraries:bodybody Django, OpenAI API, dotenv, datetime, logging, JSON
+ 📂 File Overview
 
-body
+Main File: `views.py`
+Frameworks/Libraries: Django, OpenAI API, dotenv, datetime, logging, JSON
 
-bodybody 🔧 Step-by-Step Code Breakdown
 
-bodybodybody 1. bodybodyImport Dependenciesbodybody
 
-bodypython
+ 🔧 Step-by-Step Code Breakdown
+
+ 1. Import Dependencies
+
+python
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from dotenv import load_dotenv
 from datetime import datetime
-body
 
-body These modules handle HTTP requests, environment variables, and time tracking for the API.
 
-bodypython
+ These modules handle HTTP requests, environment variables, and time tracking for the API.
+
+python
 import logging, openai, json, time, os, re
-body
 
-body Required for logging, interfacing with OpenAI API, JSON parsing, file/environment access, and regular expressions.
 
-body
+ Required for logging, interfacing with OpenAI API, JSON parsing, file/environment access, and regular expressions.
 
-bodybodybody 2. bodybodyEnvironment Setup and Loggingbodybody
 
-bodypython
-load_dotenv()  body Load API keys and other environment variables
+
+ 2. Environment Setup and Logging
+
+python
+load_dotenv()   Load API keys and other environment variables
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 openai.api_key = os.getenv('OPENAI_API_KEY')
-body
 
-body Loads `.env` file.
-body Initializes logging for debugging.
-body Retrieves OpenAI API key from environment variables.
 
-body
+ Loads `.env` file.
+ Initializes logging for debugging.
+ Retrieves OpenAI API key from environment variables.
 
-bodybodybody 3. bodybodyMain View: `brikilund`bodybody
 
-bodypython
+
+ 3. Main View: `brikilund`
+
+python
 @csrf_exempt
 def brikilund(request):
-body
 
-body Disables CSRF validation (for API endpoint).
-body Begins the main schedule generation logic.
 
-bodybodybodybody a. bodybodyStart Processing Timerbodybody
+ Disables CSRF validation (for API endpoint).
+ Begins the main schedule generation logic.
 
-bodypython
+ a. Start Processing Timer
+
+python
 start_time = datetime.now()
-body
 
-body Records the start time for performance measurement.
 
-bodybodybodybody b. bodybodyExtract Input Contextbodybody
+ Records the start time for performance measurement.
 
-bodypython
+ b. Extract Input Context
+
+python
 context , pedagogues, assistants, helpers  = _collect_context_from_request(request)
-body
 
-body Parses input JSON and structures staff, room, and constraints data.
 
-bodybodybodybody c. bodybodyCall Optimization Functionbodybody
+ Parses input JSON and structures staff, room, and constraints data.
 
-bodypython
+ c. Call Optimization Function
+
+python
 schedule_text = _optimize_schedule(context)
-body
 
-body Sends structured data to GPT for generating a weekly schedule.
 
-bodybodybodybody d. bodybodyEvaluate the Outputbodybody
+ Sends structured data to GPT for generating a weekly schedule.
 
-bodypython
+ d. Evaluate the Output
+
+python
 violations = _check_violations(pedagogues, assistants, helpers)
 completeness_result = _check_output_completeness(schedule_text, context)
 fairness_result = _calculate_fairness_score(schedule_text, context)
 coverage_result = _calculate_coverage_score(schedule_text, context)
-body
 
-body Runs rule checks, evaluates completeness of the output, and calculates fairness and coverage.
 
-bodybodybodybody e. bodybodyRespond to Clientbodybody
+ Runs rule checks, evaluates completeness of the output, and calculates fairness and coverage.
 
-bodypython
+ e. Respond to Client
+
+python
 return JsonResponse({...})
-body
 
-body Returns the optimized schedule and metadata like violations, timing, and scores as JSON.
 
-bodybodybodybody f. bodybodyError Handlingbodybody
+ Returns the optimized schedule and metadata like violations, timing, and scores as JSON.
 
-bodypython
+ f. Error Handling
+
+python
 except Exception as e:
     return JsonResponse({"error": str(e), ...}, status=400)
-body
 
-body Returns a proper error message in case of failure.
 
-body
+ Returns a proper error message in case of failure.
 
-bodybodybody 4. bodybody\_collect\_context\_from\_request(request)bodybody
 
-body Parses JSON POST body to extract:
 
-  body Total staff and breakdowns (pedagogues, assistants, helpers)
-  body Staff details (name, age, shift time)
-  body Room details and ratios
-  body Schedule blocks and time ranges
-  body Hard/soft constraints
-  body Individual staff availability
-  body Desired outcomes and LLM instruction
+ 4. \_collect\_context\_from\_request(request)
 
-body Returns:
+ Parses JSON POST  to extract:
 
-  body `context` for GPT input
-  body `pedagogues`, `assistants`, `helpers` list for further validation
+   Total staff and breakdowns (pedagogues, assistants, helpers)
+   Staff details (name, age, shift time)
+   Room details and ratios
+   Schedule blocks and time ranges
+   Hard/soft constraints
+   Individual staff availability
+   Desired outcomes and LLM instruction
 
-body
+ Returns:
 
-bodybodybody 5. bodybody\_check\_violations(...)bodybody
+   `context` for GPT input
+   `pedagogues`, `assistants`, `helpers` list for further validation
 
-body Checks basic hard constraints:
 
-  body At least one pedagogue is scheduled.
-  body Assistants and helpers are not left alone.
-body Returns a list of violations (if any).
 
-body
+ 5. \_check\_violations(...)
 
-bodybodybody 6. bodybody\_optimize\_schedule(context)bodybody
+ Checks basic hard constraints:
 
-body Composes a prompt with system and user roles for GPT.
-body Sends request to OpenAI's `o3` model to generate a weekly schedule.
-body Extracts and returns only the GPT-generated message content.
+   At least one pedagogue is scheduled.
+   Assistants and helpers are not left alone.
+ Returns a list of violations (if any).
 
-body
 
-bodybodybody 7. bodybodyTime Utility Functionsbodybody
 
-bodypython
+ 6. \_optimize\_schedule(context)
+
+ Composes a prompt with system and user roles for GPT.
+ Sends request to OpenAI's `o3` model to generate a weekly schedule.
+ Extracts and returns only the GPT-generated message content.
+
+
+
+ 7. Time Utility Functions
+
+python
 def time_to_minutes(t)
 def parse_time_block(block_str)
-body
 
-body Convert time strings like `07:00` to total minutes since midnight.
-body Parse ranges like `07:00–08:00` or `15:30–Close`.
 
-body
+ Convert time strings like `07:00` to total minutes since midnight.
+ Parse ranges like `07:00–08:00` or `15:30–Close`.
 
-bodybodybody 8. bodybody\_check\_output\_completeness(schedule\_text, context)bodybody
 
-body Validates whether the schedule contains entries for each required time block and role.
-body Placeholder in code (`...`) suggests further implementation is pending or cut off.
 
-body
+ 8. \_check\_output\_completeness(schedule\_text, context)
 
-bodybody ✅ Planned / Additional Functions (Assumed)
+ Validates whether the schedule contains entries for each required time block and role.
+ Placeholder in code (`...`) suggests further implementation is pending or cut off.
 
-bodypython
+
+
+ ✅ Planned / Additional Functions (Assumed)
+
+python
 _calculate_fairness_score(schedule_text, context)
 _calculate_coverage_score(schedule_text, context)
-body
 
-body Likely compute:
 
-  body Distribution of shifts to ensure fairness
-  body Room and role coverage across the schedule
+ Likely compute:
 
-body
+   Distribution of shifts to ensure fairness
+   Room and role coverage across the schedule
 
-bodybody 🧪 Sample Request (JSON POST)
 
-bodyjson
+
+ 🧪 Sample Request (JSON POST)
+
+json
 {
   "total_staff": 13,
   "no_of_pedagogues": 6,
   "pedagogue_name_1": "Alice",
   ...
 }
-body
 
-body Include individual staff availability and shift preferences as keys.
-body API responds with JSON containing the generated schedule and analysis.
 
-body
+ Include individual staff availability and shift preferences as keys.
+ API responds with JSON containing the generated schedule and analysis.
 
-bodybody 🧠 Model Used
 
-bodyjson
+
+ 🧠 Model Used
+
+json
 "model": "o3-reasoning-model"
-body
 
-body Indicates the GPT model selected for optimized, structured reasoning.
 
-body
+ Indicates the GPT model selected for optimized, structured reasoning.
 
-bodybody ⚠️ Notes
 
-body Make sure `.env` file contains `OPENAI_API_KEY`
-body Schedule generation assumes prompt engineering for reliability
-body Designed for kindergarten use cases but adaptable to other scheduling systems
+
+ ⚠️ Notes
+
+ Make sure `.env` file contains `OPENAI_API_KEY`
+ Schedule generation assumes prompt engineering for reliability
+ Designed for kindergarten use cases but adaptable to other scheduling systems
 
 
