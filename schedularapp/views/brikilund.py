@@ -21,13 +21,14 @@ def brikilund(request):
         start_time = datetime.now()  # start timer here
 
         # Build context
-        context , pedagogues, assistants, helpers  = _collect_context_from_request(request)
+        context , pedagogues, assistants, helpers, constraints  = _collect_context_from_request(request)
 
         end_time = datetime.now()  # end timer here
         decimal_time = (end_time - start_time).total_seconds()
         process_time = f"{decimal_time} sec"
 
         schedule_text = _optimize_schedule(context)
+        schedule_text = _constraints_check(schedule_text, context, constraints)
 
         # Existing violations
         violations = _check_violations(pedagogues, assistants, helpers)
@@ -40,6 +41,7 @@ def brikilund(request):
 
         # NEW: Coverage
         coverage_result = _calculate_coverage_score(schedule_text, context)
+        
 
         return JsonResponse({
             'Gpt_provided_schedule': schedule_text,
@@ -48,7 +50,7 @@ def brikilund(request):
             'Output Completeness': completeness_result,
             'Fairness Score': fairness_result,
             'Coverage Score': coverage_result,
-            "model":'o3-reasoning-model',
+            "model":'gpt-4',
         })
 
     except Exception as e:
@@ -97,12 +99,18 @@ def _collect_context_from_request(request):
             "age": body.get(f"helper_age_{i}", "N/A"),
             "shift_time": body.get(f"helper_shift_time_{i}", "N/A"),
         })
+    # CONSTRAINTS
+    constraints = {
+        'hard_constraints' : body.get("hard_constraints"),
+        'soft_constraints' : body.get("soft_constraints")
+        }
 
     context = {
         "staff_counts": staff_counts,
         "pedagogues": pedagogues,
         "assistants": assistants,
         "helpers": helpers,
+        'constraints':f" Make sure that any hard constraint dont be violated. Here they are: {constraints}",
         
         # ROOMS
         "rooms": {
@@ -133,29 +141,13 @@ def _collect_context_from_request(request):
             {"time": "15:30–Close"},
             {"time": "16:15–16:30"}
         ],
-        # CONSTRAINTS
-        "constraints": {
-            "hard_constraints": [
-                "No staff can work more than 6 hours continuously without a 30-minute break",
-                "At least 1 Pedagogue must be present in every room",
-                "Helpers cannot be alone",
-                "Staff must meet their contract hours within ±0.25h"
-            ],
-            
-            "soft_constraints": [
-                "Avoid same staff opening and closing same day",
-                "Max 3 opens or 3 closes per person weekly",
-                "Distribute Friday clean-up shifts fairly",
-                "Respect role/room preferences where possible"
-            ],
             "individual_availability": [
                 {"staff": "P1", "note": "Cannot open on Mondays"},
                 {"staff": "P4", "note": "Not available on Fridays"},
                 {"staff": "P6", "note": "Only works Mon–Wed, 07:00–13:00"},
                 {"staff": "A1", "note": "School on Wednesdays, 07:00–10:00"},
                 {"staff": "H2", "note": "Only works 09:00–13:00"},
-            ]
-        },
+            ],
         "success_criteria": {
             "legal_compliance": "No live-ratio breaches",
             "shift_quality": "≥85% of shifts pass on first run",
@@ -169,7 +161,7 @@ def _collect_context_from_request(request):
         )
     }
     
-    return context, pedagogues, assistants, helpers
+    return context, pedagogues, assistants, helpers , constraints
 
 def _check_violations(pedagogues, assistants, helpers):
     violations = []
@@ -188,6 +180,8 @@ def _check_violations(pedagogues, assistants, helpers):
         violations.append("Helpers cannot work alone.")
     
     return violations
+
+        
         
 def _optimize_schedule(context):
     
@@ -201,7 +195,7 @@ def _optimize_schedule(context):
         logger.info(f"{user_msg}")
 
         response = openai.ChatCompletion.create(
-            model="o3",
+            model="gpt-4",
             messages=[
                 {"role": "system", "content": base_system},
                 {"role": "user", "content": user_msg}
@@ -212,6 +206,22 @@ def _optimize_schedule(context):
 
         return response['choices'][0]['message']['content']
 
+def _constraints_check(schedule_text, context, constraints):
+    hard_constraints = constraints.get("hard_constraints", [])
+    
+    # Naive check: ensure hard constraint keywords are mentioned
+    violations_found = False
+
+    for rule in hard_constraints:
+        if rule.lower() not in schedule_text.lower():
+            violations_found = True
+            break
+
+    if violations_found:
+        logger.info("Hard constraint violation found. Re-optimizing schedule...")
+        schedule_text = _optimize_schedule(context)
+
+    return schedule_text
 
 def time_to_minutes(t):
     # Convert 'HH:MM' or 'HH:MM–HH:MM' string parts to minutes since midnight
@@ -302,7 +312,14 @@ def _calculate_coverage_score(schedule_text, context):
         "covered_blocks": covered_blocks,
         "total_blocks": len(blocks)
     }
+        
     
+    
+    
+    
+
+
+
 # What is the details object?
 # The "details" object shows:
 # How many times each staff member is scheduled throughout the week. Think of it like a workload count or number of assignments per person.
