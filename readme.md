@@ -234,7 +234,7 @@ These metrics will be logged per run to track model performance over time and dr
         <tr>
           <td>Cost Breakdown</td>
           <td>Token consumption and dollar cost per run.</td>
-          <td>$0.0097435</td>
+          <td>$0.0142</td>
         </tr>
       </tbody>
     </table>
@@ -275,6 +275,16 @@ These metrics will be logged per run to track model performance over time and dr
 
   <p>
     After completing these steps, you can run the application as per the usage instructions provided in the documentation or README file.
+  </p>
+
+    <h2>Final Steps:</h2>
+  <p>
+    Once you’ve completed the above steps, follow these commands to run the server:
+  </p>
+  <pre><code>cd schedularapp python manage.py runserver</code></pre>
+
+  <p>
+    Now you can test the app using <strong>Postman</strong> by sending a valid <code>JSON</code> request.
   </p>
 
 </body>
