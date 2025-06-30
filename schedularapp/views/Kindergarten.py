@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 openai.api_key = os.getenv('OPENAI_API_KEY') # API is in file .env
 
 @csrf_exempt
-def brikilund(request):
+def Kindergarten(request):
     try:
         start_time = datetime.now()  # start timer here
 
@@ -55,7 +55,7 @@ def brikilund(request):
         
         return JsonResponse({
             'Gpt_provided_schedule': schedule_text,
-            "model report":report_,
+            "model report": report_,
             'Fairness Score': fairness_result,
             'tokens_details': tokens_details,
             'Hard Rule Violation Count': violations if violations else "- No rule has been violated so far.",
@@ -69,6 +69,23 @@ def brikilund(request):
             "error": str(e),
             "message": "Something went wrong while processing the schedule input."
         }, status=400)
+
+def _collect_staff_data(body, role, count_key, prefix):
+    staff = []
+    for i in range(1, body.get(count_key, 0) + 1):
+        staff.append({
+            "name": body.get(f"{prefix}_name_{i}", f"{role} {i}"),
+            "age": body.get(f"{prefix}_age_{i}", "N/A"),
+            "shift_time": body.get(f"{prefix}_shift_time_{i}", "N/A"),
+            "certifification": bool(body.get(f"certifification_{i}", False)),
+            'availability': body.get(f"individual_availability_{i}", "can work monday - friday"),
+            "Target": int(body.get(f"target_hour_per_week_{i}", 45)),
+            "Soft_Preferences": body.get(f"Soft_Preferences_{i}", "N/A"),
+            "opt_in_opens": bool(body.get("opt_in_Lates_{i}", False)),
+            "opt_in_lates": bool(body.get("opt_in_Lates_{i}", False)),
+            "FLEX/FLOAT_staff": bool(body.get('FLEX/FLOAT_staff_{i}', False))
+        })
+    return staff
 
 def _collect_context_from_request(request):
     "Extracts the full scheduling input as a dict."
@@ -90,30 +107,17 @@ def _collect_context_from_request(request):
         "no_of_assistants": int(body.get("no_of_assistants")),
         "no_of_helpers": int(body.get("no_of_helpers")),
     }
-    # Pedagogues
-    pedagogues = []
-    for i in range(1, staff_counts["no_of_pedagogues"] + 1):
-        pedagogues.append({
-            "name": body.get(f"pedagogue_name_{i}", f"Pedagogue {i}"),
-            "age": body.get(f"pedagogue_age_{i}", "N/A"),
-            "shift_time": body.get(f"pedagogue_shift_time_{i}", "N/A"),
-        })
-    # Assistants
-    assistants = []
-    for i in range(1 , staff_counts["no_of_assistants"] + 1):
-        assistants.append({
-            "name": body.get(f"assistant_name_{i}", f"Assistant {i}"),
-            "age": body.get(f"assistant_age_{i}", "N/A"),
-            "shift_time": body.get(f"assistant_shift_time_{i}", "N/A"),
-        })
-    # Helpers
-    helpers = []
-    for i in range(1, staff_counts["no_of_helpers"] + 1 ):
-        helpers.append({
-            "name": body.get(f"helper_name_{i}", f"Helper {i}"),
-            "age": body.get(f"helper_age_{i}", "N/A"),
-            "shift_time": body.get(f"helper_shift_time_{i}", "N/A"),
-        })
+
+    # Usage
+    pedagogues = _collect_staff_data(body, "Pedagogue", "no_of_pedagogues", "pedagogue")
+    assistants = _collect_staff_data(body, "Assistant", "no_of_assistants", "assistant")
+    helpers = _collect_staff_data(body, "Helper", "no_of_helpers", "helper")
+
+    # No of rooms
+    no_of_rooms = {
+        'rooms':int(body.get("rooms"))
+    }    
+    
     # CONSTRAINTS/HARD RULES
     constraints = {
         # HARD CONSTRAINTS
@@ -121,6 +125,13 @@ def _collect_context_from_request(request):
         # SOFT CONSTRAINTS
         'soft_constraints' : body.get("soft_constraints")
         }
+
+    default_limit = "two opening shifts per week"
+
+    opt = {
+        "Opt-in Opens": f" If it is {True} This means whether the person is open to taking more than the {default_limit}. If this is marked   True   the scheduler can assign that person additional early shifts when needed.",
+        "Opt-in Lates": "Similar to opt-in opens, this indicates whether the staff member agrees to take more than the usual one late shift per week. It gives the system more flexibility when covering late-room duties."
+    }  
     
     # CONTEXT
     context = {
@@ -129,11 +140,19 @@ def _collect_context_from_request(request):
         "pedagogues": pedagogues,
         "assistants": assistants,
         "helpers": helpers,
+        'no of rooms': no_of_rooms,
+        "Rolling horizon": { 
+            "Cycle": " - Genarete a schedule of 4 weeks- each week must have different schedule then the previous one and after one schedule give a line.",
+            "Operating Days": "Monday - Friday",
+            "Core Hours": "07:30 - 17:15 ( Extended 15 minutes )",
+        },
         'constraints':f" Make sure that any hard constraint dont be violated. Here they are: {constraints}",
-        
+        "option_in":f"option in or late {opt}",
+        "Soft Preferences":"These are preferences rather than strict rules. For example, someone might prefer not to open or not to start before 08:00. The engine will try to honor these, but can override them if needed to make the schedule work. They're useful for making the plan feel fair without locking it down too rigidly.",
+        "FLEX/FLOAT_staff":"These are staff members without a fixed room. They’re used for covering absences, handling lunch breaks, or stepping in during special times like Thursday meetings.",
         # ROOMS
         "rooms": {
-            "total_rooms": int(body.get("rooms", 5)),
+            "total_rooms": int(body.get("rooms", no_of_rooms)),
             "V1_V2": "Infant rooms (10–30 months)",
             "B1_B2": "Preschool rooms (2 years 10 months – 5 years)",
             "required_ratio": {
@@ -144,38 +163,66 @@ def _collect_context_from_request(request):
             "pedagogue_required": True
         },
         "schedule_blocks": [
-            {"time": "07:00–08:00", "activity": "Opening (rooms merged)", "notes": "3 adults total (≥2 Pedagogues)"},
-            {"time": "08:00–09:00", "activity": "Free play, breakfast", "notes": "Rooms split; floaters help"},
-            {"time": "09:00–11:00", "activity": "Planned activities", "notes": "Core staffing; outings possible"},
-            {"time": "11:00–13:00", "activity": "Lunch + naps", "notes": "Breaks begin; floaters cover"},
-            {"time": "13:00–15:30", "activity": "Outdoor play / excursions", "notes": "Assistants may swap"},
-            {"time": "15:30–Close", "activity": "Pick-up + merge", "notes": "Reduced staffing allowed"},
-            {"time": "Friday 16:15–16:30", "activity": "Clean-up", "notes": "Rotated among staff"}
+            {"time": "07:00–08:00", "activity": "Opening (rooms merged)","certified":True, "notes": "3 adults total (≥2 Pedagogues)"},
+            {"time": "08:00–09:00", "activity": "Free play, breakfast","certified":False, "notes": "Rooms split; floaters help"},
+            {"time": "09:00–11:00", "activity": "Planned activities","certified":True, "notes": "Core staffing; outings possible"},
+            {"time": "11:00–13:00", "activity": "Lunch + naps","certified":True, "notes": "Breaks begin; floaters cover"},
+            {"time": "13:00–15:30", "activity": "Outdoor play / excursions","certified":False, "notes": "Assistants may swap"},
+            {"time": "15:30–Close", "activity": "Pick-up + merge","certified":True, "notes": "Reduced staffing allowed"},
+            {"time": "Friday 16:15–16:30", "activity": "Clean-up","certified":False, "notes": "Rotated among staff"}
         ],
-        # Mentioning the time schedule in which the shifts are assigned. - Standered time schedule
-        "schedule_time": [
-            {"time": "07:00–08:00"},
-            {"time": "08:00–09:00"},
-            {"time": "09:00–11:00"},
-            {"time": "11:00–13:00"},
-            {"time": "13:00–15:30"},
-            {"time": "15:30–Close"},
-            {"time": "16:15–16:30"}
-        ],
-        # STAFF AVAILABILITY
-            "individual_availability": [
-                {"staff": "P1", "note": "Cannot open on Mondays"},
-                {"staff": "P4", "note": "Not available on Fridays"},
-                {"staff": "P6", "note": "Only works Mon–Wed, 07:00–13:00"},
-                {"staff": "A1", "note": "School on Wednesdays, 07:00–10:00"},
-                {"staff": "H2", "note": "Only works 09:00–13:00"},
-            ],
         # SUCCESS_CRITERIA
         "success_criteria": {
             "legal_compliance": "No live-ratio breaches",
             "shift_quality": "≥85% of shifts pass on first run",
             "manager_effort": "Schedule editable/finalized in under 10 minutes",
             "fairness": "Even distribution of late shifts (max 1 difference over 4 weeks)"
+        },
+        
+        "coverage_grid": {
+            "kindergarten_only": [
+            {
+                "time_slice": "07:30 - 08:00",
+                "adults_per_room": "1 adult in one rotating opening room",
+                "global_notes": "Opening room & opener both rotate (Rule 7)."
+            },
+            {
+                "time_slice": "08:00 - 08:30",
+                "adults_per_room": "≥ 1 adult in every room",
+                "global_notes": "Arrival ramp-up."
+            },
+            {
+                "time_slice": "08:30 - 09:00",
+                "adults_per_room": "≥ 2 adults in every room",
+                "global_notes": "Null"
+            },
+            {
+                "time_slice": "09:00 - 11:30",
+                "adults_per_room": "2 adults in every room",
+                "global_notes": "Steady-state teaching & play."
+            },
+            {
+                "time_slice": "11:30 - 13:00",
+                "adults_per_room": "3 adults in every room",
+                "global_notes": "Lunch overlap; min 2 remain while one eats. (window 90 min instead of 150 min)"
+            },
+            {
+                "time_slice": "13:00 - 14:00",
+                "adults_per_room": "≥ 2 adults in every room",
+                "global_notes": "Early-shift staff may leave at 14:00."
+            },
+            {
+                "time_slice": "14:00 - 16:00",
+                "adults_per_room": "≥ 2 adults in every room",
+                "global_notes": "Null"
+            },
+            {
+                "time_slice": "16:00 - 17:15",
+                "adults_per_room": "Children consolidate to a rotating late room; 2 adults (one certified) stay until last pickup.",
+                "global_notes": "Latest finish now matches Core Hours."
+            }
+            ],
+            "certified_rule": "At every 30-min slice, each open room must have ≥ 1 certified educator."
         },
         # INSTRUCTIONS TO LLM - o3
         "llm_instruction": (
@@ -225,7 +272,7 @@ def _optimize_schedule(context):
         ]
     )
     
-    # Log the response to check its structure
+    # Log the response to check its structrue
     logger.info(f"OpenAI API Response: {response}")
 
     # Extract the schedule text
@@ -308,7 +355,7 @@ def _constraints_check(schedule_text, constraints):
             _report = response['choices'][0]['message']['content']
             
             report_ = {
-                "tokens_used": _report,
+                "Response report": _report,
                 "input_token":input_tokens, 
                 "output_token":output_tokens,
                 "cost": cost_,
@@ -316,8 +363,8 @@ def _constraints_check(schedule_text, constraints):
 
             return report_ 
         else:
-            logger.error("Unexpected API response structure")
-            return "Error in constraints check, unexpected API response structure."
+            logger.error("Unexpected API response structrue")
+            return "Error in constraints check, unexpected API response structrue."
 
     except openai.error.OpenAIError as e:
         logger.error(f"OpenAI API error: {str(e)}")
