@@ -3,32 +3,6 @@
 <head>
   <meta charset="UTF-8">
   <title>Kindergarten Schedule Optimizer - Code Explanation</title>
-  <style>
-    body { font-family: Arial, sans-serif; line-height: 1.6; margin: 30px; }
-    h1, h2, h3 { color: #4A90E2; }
-    ul { margin-left: 20px; margin-top: 0.5rem;}
-    code { background: #f4f4f4; padding: 2px 4px; border-radius: 3px; }
-        h1, h2 {
-      color: #2c3e50;
-    }
-    section {
-      margin-bottom: 2rem;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      background-color: #fff;
-      box-shadow: 0 0 10px rgba(0,0,0,0.05);
-    }
-    th, td {
-      padding: 12px;
-      border: 1px solid #ddd;
-      text-align: left;
-    }
-    th {
-      background-color: #f0f0f0;
-    }
-  </style>
 </head>
 <body>
 
