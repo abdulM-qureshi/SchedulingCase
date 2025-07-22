@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <title>Document</title>
+    <style>
+        .nav-link-indicator {
+            transition: all 0.3s ease;
+            transform: scaleX(0);
+            transform-origin: left;
+        }
+        a:hover .nav-link-indicator,
+        a.active .nav-link-indicator {
+            transform: scaleX(1);
+        }
+        #navbar {
+        Top: 0;
+        right:0;
+        left:0;
+        margin-bottom: 20;
+        }
+    </style>
+</head>
+<body>
+        <!-- Navigation Bar -->
+        <nav id="navbar" class="bg-white/80 backdrop-blur-md shadow-md sticky top-0 right-0 left-0 z-50 transition-all duration-300">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex items-center justify-between align-items h-20">
+                    <!-- Logo -->
+                    <div class="flex-shrink-0">
+                        <a href="#" class="flex items-center space-x-2">
+                            <svg class="h-8 w-8 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9 9 0 100-18 9 9 0 000 18z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 3.75a.75.75 0 01.75.75v6.75h6.75a.75.75 0 010 1.5h-6.75v6.75a.75.75 0 01-1.5 0v-6.75H3.75a.75.75 0 010-1.5h6.75V4.5a.75.75 0 01.75-.75z" />
+                            </svg>
+                            <span class="text-2xl font-bold text-gray-800">Kindergarten</span>
+                        </a>
+                    </div>
+    
+                    <!-- Desktop Navigation Links -->
+                    <div class="hidden md:block">
+                        <div class="ml-10 flex items-baseline space-x-4">
+                            <a href="/" class="text-gray-600 hover:text-blue-600 px-3 py-2 rounded-md text-md font-medium group active">
+                                Home
+                                <span class="block max-w-0 group-hover:max-w-full transition-all duration-500 h-0.5 bg-blue-600 nav-link-indicator"></span>
+                            </a>
+                            <a href="/about/" class="text-gray-600 hover:text-blue-600 px-3 py-2 rounded-md text-md font-medium group">
+                                About
+                                <span class="block max-w-0 group-hover:max-w-full transition-all duration-500 h-0.5 bg-blue-600 nav-link-indicator"></span>
+                            </a>
+                        </div>
+                    </div>
+    
+                    <!-- CTA Button and Mobile Menu Button -->
+                    <div class="flex items-center">
+                        <!-- CTA Button -->
+                        <div class="hidden md:block">
+                             <a href="#" class="bg-blue-600 text-white px-5 py-2.5 rounded-full font-semibold hover:bg-blue-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-blue-300">
+                                Get Started
+                            </a>
+                        </div>
+                        <!-- Mobile menu button -->
+                        <div class="md:hidden ml-4 flex items-center">
+                            <button id="mobile-menu-button" class="inline-flex items-center justify-center p-2 rounded-md text-gray-700 hover:text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white transition-all">
+                                <span class="sr-only">Open main menu</span>
+                                <!-- Hamburger Icon -->
+                                <svg id="hamburger-icon" class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+                                </svg>
+                                <!-- Close Icon (hidden by default) -->
+                                 <svg id="close-icon" class="hidden h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    
+            <!-- Mobile menu, show/hide based on menu state. -->
+            <div id="mobile-menu" class="md:hidden hidden transition-all duration-300 ease-in-out">
+                <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                    <a href="/" class="text-gray-700 hover:bg-blue-500 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Home</a>
+                    <a href="about/" class="text-gray-700 hover:bg-blue-500 hover:text-white block px-3 py-2 rounded-md text-base font-medium">About</a>
+                     <a href="#" class="bg-blue-600 text-white block px-3 py-3 rounded-md text-base font-medium text-center mt-2 mx-2">
+                        Get Started
+                    </a>
+                </div>
+            </div>
+        </nav>
+        <script>
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const hamburgerIcon = document.getElementById('hamburger-icon');
+        const closeIcon = document.getElementById('close-icon');
+        const navbar = document.getElementById('navbar');
+
+        mobileMenuButton.addEventListener('click', () => {
+            // Toggle the 'hidden' class on the mobile menu
+            mobileMenu.classList.toggle('hidden');
+            
+            // Animate the menu sliding down
+            if (!mobileMenu.classList.contains('hidden')) {
+                mobileMenu.style.maxHeight = mobileMenu.scrollHeight + "px";
+            } else {
+                mobileMenu.style.maxHeight = null;
+            }
+
+            // Toggle the visibility of the hamburger and close icons
+            hamburgerIcon.classList.toggle('hidden');
+            closeIcon.classList.toggle('hidden');
+        });
+
+        // Add a shadow to the navbar on scroll for better visibility
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 10) {
+                navbar.classList.add('shadow-xl');
+            } else {
+                navbar.classList.remove('shadow-xl');
+            }
+        });
+        </script>
+</body>
+</html>
