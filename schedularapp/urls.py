@@ -6,6 +6,7 @@ from django.http import HttpResponse
 from schedularapp.views import index
 from schedularapp.views.index import index 
 # from schedularapp.views.editor import editor
+# from schedularapp.views.editor import editor
 from schedularapp.views.brikilund import brikilund 
 from schedularapp.views.Kindergarten import Kindergarten 
 from schedularapp.views.analysis import analysis 
