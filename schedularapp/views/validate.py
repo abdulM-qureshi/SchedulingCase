@@ -23,7 +23,7 @@ def validate_schedule_only(request):
     if request.method == 'POST':
         try:
             body = json.loads(request.body)
-            
+             
             schedule_data = body.get('updated_schedule')
             
             if not schedule_data:
