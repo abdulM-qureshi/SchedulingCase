@@ -1,0 +1,399 @@
+/* ========================================
+   Kindergarten Schedule Generator
+   White and Blue Theme
+   ======================================== */
+
+:root {
+    --primary-blue: #007bff;
+    --primary-blue-dark: #0056b3;
+    --light-blue: #e7f3ff;
+    --accent-blue: #4dabf7;
+    --white: #ffffff;
+    --light-gray: #f8f9fa;
+    --text-dark: #2c3e50;
+    --text-muted: #6c757d;
+    --shadow: 0 4px 6px rgba(0, 123, 255, 0.1);
+    --shadow-lg: 0 10px 30px rgba(0, 123, 255, 0.15);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #e7f3ff 0%, #f8f9fa 100%);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    color: var(--text-dark);
+}
+
+main {
+    flex: 1;
+}
+
+/* ========================================
+   Header Styles
+   ======================================== */
+
+header {
+    background: var(--white) !important;
+    border-bottom: 2px solid var(--light-blue);
+}
+
+header .logo h1 {
+    font-weight: 600;
+    letter-spacing: -0.5px;
+}
+
+header .logo i {
+    color: var(--primary-blue);
+}
+
+/* ========================================
+   Authentication Card Styles
+   ======================================== */
+
+.auth-card {
+    background: var(--white);
+    border-radius: 20px;
+    box-shadow: var(--shadow-lg);
+    padding: 40px;
+    max-width: 480px;
+    margin: 0 auto;
+    border: 1px solid rgba(0, 123, 255, 0.1);
+}
+
+.auth-card-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.auth-card-header i {
+    font-size: 3rem;
+    color: var(--primary-blue);
+    margin-bottom: 15px;
+}
+
+.auth-card-header h2 {
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: 10px;
+}
+
+.auth-card-header p {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+}
+
+/* ========================================
+   Form Styles
+   ======================================== */
+
+.form-label {
+    font-weight: 500;
+    color: var(--text-dark);
+    margin-bottom: 8px;
+}
+
+.form-control {
+    border-radius: 10px;
+    padding: 12px 16px;
+    border: 2px solid #e9ecef;
+    transition: all 0.3s ease;
+    font-size: 0.95rem;
+}
+
+.form-control:focus {
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.15);
+}
+
+.form-control.is-invalid {
+    border-color: #dc3545;
+}
+
+.invalid-feedback {
+    font-size: 0.85rem;
+    margin-top: 5px;
+}
+
+.input-group {
+    position: relative;
+}
+
+.input-group-text {
+    background: var(--white);
+    border: 2px solid #e9ecef;
+    border-right: none;
+    border-radius: 10px 0 0 10px;
+    color: var(--text-muted);
+}
+
+.input-group .form-control {
+    border-left: none;
+    border-radius: 0 10px 10px 0;
+}
+
+.input-group:focus-within .input-group-text {
+    border-color: var(--primary-blue);
+}
+
+/* ========================================
+   Button Styles
+   ======================================== */
+
+.btn-primary {
+    background: var(--primary-blue);
+    border: none;
+    border-radius: 10px;
+    padding: 12px 24px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 10px rgba(0, 123, 255, 0.2);
+}
+
+.btn-primary:hover {
+    background: var(--primary-blue-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(0, 123, 255, 0.3);
+}
+
+.btn-block {
+    width: 100%;
+}
+
+.btn-link {
+    color: var(--primary-blue);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+.btn-link:hover {
+    color: var(--primary-blue-dark);
+    text-decoration: underline;
+}
+
+/* ========================================
+   Alert Messages
+   ======================================== */
+
+.alert {
+    border-radius: 10px;
+    border: none;
+    padding: 15px 20px;
+    margin-bottom: 20px;
+}
+
+.alert-success {
+    background: #d4edda;
+    color: #155724;
+}
+
+.alert-danger {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.alert-info {
+    background: var(--light-blue);
+    color: #004085;
+}
+
+.alert-warning {
+    background: #fff3cd;
+    color: #856404;
+}
+
+/* ========================================
+   Divider
+   ======================================== */
+
+.divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    margin: 25px 0;
+}
+
+.divider::before,
+.divider::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.divider span {
+    padding: 0 15px;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+/* ========================================
+   Links and Navigation
+   ======================================== */
+
+.auth-links {
+    text-align: center;
+    margin-top: 25px;
+    padding-top: 25px;
+    border-top: 1px solid #e9ecef;
+}
+
+.auth-links p {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    margin-bottom: 0;
+}
+
+.auth-links a {
+    color: var(--primary-blue);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+.auth-links a:hover {
+    color: var(--primary-blue-dark);
+    text-decoration: underline;
+}
+
+/* ========================================
+   Footer Styles
+   ======================================== */
+
+footer {
+    background: var(--white) !important;
+    border-top: 2px solid var(--light-blue);
+    margin-top: 50px;
+}
+
+footer p {
+    font-size: 0.9rem;
+}
+
+/* ========================================
+   Admin Specific Styles
+   ======================================== */
+
+.admin-card {
+    border-top: 4px solid var(--primary-blue);
+}
+
+.admin-card .auth-card-header i {
+    color: var(--primary-blue-dark);
+}
+
+.admin-badge {
+    display: inline-block;
+    background: var(--primary-blue);
+    color: var(--white);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+/* ========================================
+   Password Toggle
+   ======================================== */
+
+.password-toggle {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: var(--text-muted);
+    z-index: 10;
+}
+
+.password-toggle:hover {
+    color: var(--primary-blue);
+}
+
+/* ========================================
+   Checkbox Styles
+   ======================================== */
+
+.form-check-input {
+    border: 2px solid #dee2e6;
+    width: 1.2rem;
+    height: 1.2rem;
+    margin-top: 0.15rem;
+}
+
+.form-check-input:checked {
+    background-color: var(--primary-blue);
+    border-color: var(--primary-blue);
+}
+
+.form-check-label {
+    color: var(--text-dark);
+    font-size: 0.95rem;
+    margin-left: 5px;
+}
+
+/* ========================================
+   Responsive Design
+   ======================================== */
+
+@media (max-width: 576px) {
+    .auth-card {
+        padding: 30px 20px;
+        border-radius: 15px;
+    }
+
+    .auth-card-header h2 {
+        font-size: 1.5rem;
+    }
+
+    header .logo h1 {
+        font-size: 1rem;
+    }
+
+    header .logo i {
+        font-size: 1.5rem;
+    }
+}
+
+/* ========================================
+   Animations
+   ======================================== */
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.auth-card {
+    animation: fadeInUp 0.5s ease;
+}
+
+/* ========================================
+   Utilities
+   ======================================== */
+
+.text-primary {
+    color: var(--primary-blue) !important;
+}
+
+.bg-light-blue {
+    background-color: var(--light-blue) !important;
+}
+
+.small-text {
+    font-size: 0.85rem;
+}

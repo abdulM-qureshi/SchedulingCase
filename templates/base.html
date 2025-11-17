@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Kindergarten Schedule Generator{% endblock %}</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="../static/css/style.css">
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Header -->
+    <header class="bg-white shadow-sm py-3 mb-4">
+        <div class="container">
+            <div class="d-flex align-items-center justify-content-between">
+                <div class="logo d-flex align-items-center">
+                    <i class="fas fa-school text-primary fs-2 me-2"></i>
+                    <h1 class="h4 mb-0 text-primary">Kindergarten Schedule Generator</h1>
+                </div>
+                <!-- <nav class="d-none d-md-block">
+                    <a href="login.html" class="text-decoration-none text-secondary me-3">Login</a>
+                    <a href="signup.html" class="btn btn-primary btn-sm">Sign Up</a>
+                </nav> -->
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container my-5">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-light text-center py-4 mt-auto">
+        <div class="container">
+            <p class="text-muted mb-0">&copy; 2024 Kindergarten Schedule Generator. All rights reserved.</p>
+            <p class="text-muted small mb-0">Making schedule management fun and easy! 🎨</p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,96 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kindergarten Schedule Input</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'styles.css' %}">
+</head>
+<!-- </head>Templates\static -->
+<body class="bg-gray-100 min-h-screen p-8">
+    <div class="container mx-auto p-8 bg-white rounded-xl shadow-lg">
+        <h1 class="text-3xl font-bold text-center mb-8 text-gray-800">Kindergarten Schedule Generator</h1>
+        
+        <div class="mb-8">
+            <h2 class="text-xl font-semibold mb-4">Scheduling Period</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="flex flex-col">
+                    <label for="start_date" class="mb-1 text-sm font-medium text-gray-700">Start Date</label>
+                    <input type="date" id="start_date" class="px-3 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div class="flex flex-col">
+                    <label for="end_date" class="mb-1 text-sm font-medium text-gray-700">End Date</label>
+                    <input type="date" id="end_date" class="px-3 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+            </div>
+        </div>
+
+        <div class="mb-8">
+            <h2 class="text-xl font-semibold mb-4">Certified Staff</h2>
+            <p class="text-sm text-gray-600 mb-2">Enter the initials of all certified staff members, separated by commas.</p>
+            <input type="text" id="certified_staff" class="w-full px-3 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="e.g., J, H, B, M.B, K.Ø">
+        </div>
+
+        <div id="room-container">
+            <!-- Room sections will be added here dynamically -->
+        </div>
+
+        <div class="mt-4 flex justify-center space-x-4">
+            <button onclick="addRoom()" class="button-secondary">Add Room</button>
+            <button onclick="loadSampleData()" class="button-secondary">Load Sample Data</button>
+        </div>
+
+        <div class="mt-8 flex justify-center">
+            <button onclick="generateSchedule()" class="button-primary flex items-center justify-center space-x-2">
+                <span id="button-text">Generate Schedule</span>
+                <div id="spinner" class="loader hidden"></div>
+            </button>
+        </div>
+
+        <div id="schedule-output" class="mt-8"></div>
+        <div id="error-message" class="hidden error-message"></div>
+        <div id="status-message" class="hidden success-message"></div>
+    </div>
+
+    <h3 class="text-xl font-semibold text-gray-700 mt-8 mb-4">New Discrepancies</h3>
+    <div id="new_discrepancies_container" class="mb-8 p-6 bg-gray-50 rounded-lg border overflow-y-auto" style="max-height: 300px;">
+                <!-- Discrepancy cards will be inserted here -->
+    </div>
+    
+    <div class="mt-8">
+        <h2 class="text-2xl font-semibold mb-4 text-gray-800">Violation Summary</h2>
+        <div id="violations_summary_container" class="space-y-2">
+            </div>
+    </div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
+        <div>
+            <h3 class="text-xl font-semibold mb-4 text-gray-800 ">Weekly Hours Violations</h3>
+            <div id="weekly_hours_container" class="space-y-4 mb-8 p-6 bg-gray-50 rounded-lg border overflow-y-auto" style="max-height: 300px;">
+                </div>
+        </div>
+        <div>
+            <h3 class="text-xl font-semibold mb-4 text-gray-800">Friday Early Leave Violations</h3>
+            <div id="friday_early_leave_container" class="space-y-4 mb-8 p-6 bg-gray-50 rounded-lg border overflow-y-auto" style="max-height: 300px;">
+                </div>
+        </div>
+    </div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
+        <div>
+            <h3 class="text-xl font-semibold mb-4 text-gray-800">Fixed Schedules Violations</h3>
+            <div id="fixed_schedules_container" class="space-y-4 mb-8 p-6 bg-gray-50 rounded-lg border overflow-y-auto" style="max-height: 300px;">
+                </div>
+        </div>
+        <div>
+            <h3 class="text-xl font-semibold mb-4 text-gray-800">Staffing Levels Violations</h3>
+            <div id="staffing_levels_container" class="space-y-4 mb-8 p-6 bg-gray-50 rounded-lg border overflow-y-auto" style="max-height: 300px;">
+                </div>
+        </div>
+    </div>
+    <script src="{% static 'main.js' %}"></script>
+</body>
+</html>

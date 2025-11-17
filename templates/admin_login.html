@@ -1,0 +1,314 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login - Kindergarten Schedule Generator</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+    <!-- Header -->
+    <header class="bg-white shadow-sm py-3 mb-4">
+        <div class="container">
+            <div class="d-flex align-items-center justify-content-between">
+                <div class="logo d-flex align-items-center">
+                    <i class="fas fa-school text-primary fs-2 me-2"></i>
+                    <h1 class="h4 mb-0 text-primary">Kindergarten Schedule Generator</h1>
+                </div>
+                <!-- <nav class="d-none d-md-block">
+                    <a href="{% url 'login' %}" class="text-decoration-none text-secondary me-3">User Login</a>
+                    <a href="admin_login.html" class="btn btn-primary btn-sm">Admin Login</a>
+                </nav> -->
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container my-5">
+        <div class="auth-card admin-card">
+            <div class="auth-card-header">
+                <span class="admin-badge">ADMIN ACCESS</span>
+                <i class="fas fa-user-shield"></i>
+                <h2>Administrator Login</h2>
+                <p>Secure access for system administrators only</p>
+            </div>
+
+            <!-- Success Message (Hidden by default) -->
+            <div id="successMessage" class="alert alert-success" style="display: none;">
+                <i class="fas fa-check-circle me-2"></i>
+                <strong>Success!</strong> Welcome back, Administrator.
+            </div>
+
+           
+
+            <!-- Error Message (Hidden by default) -->
+            <div id="errorMessage" class="alert alert-danger" style="display: none;">
+                <i class="fas fa-exclamation-circle me-2"></i>
+                <strong>Access Denied!</strong> <span id="errorText">Invalid administrator credentials.</span>
+            </div>
+
+<form id="adminLoginForm" novalidate method="post" action="{% url 'admin_login' %}">
+  {% csrf_token %}
+  {% if messages %}
+  {% for message in messages %}
+    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+      {{ message }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+  {% endfor %}
+{% endif %}
+
+  <!-- Username or Email -->
+  <div class="mb-3">
+    <label for="username" class="form-label">Username or Email</label>
+    <div class="input-group">
+      <span class="input-group-text"><i class="fas fa-user-shield"></i></span>
+      <input type="text" class="form-control" id="username" name="username" placeholder="Enter username or email" required>
+    </div>
+    <div class="invalid-feedback">Please enter username or email.</div>
+  </div>
+
+  <!-- Password -->
+  <div class="mb-3">
+    <label for="password" class="form-label">Administrator Password</label>
+    <div class="input-group position-relative">
+      <span class="input-group-text"><i class="fas fa-key"></i></span>
+      <input type="password" class="form-control" id="password" name="password" placeholder="Enter admin password" required>
+      <span class="password-toggle" onclick="togglePassword('password', this)"><i class="fas fa-eye"></i></span>
+    </div>
+    <div class="invalid-feedback">Please enter your administrator password.</div>
+  </div>
+
+
+  <div class="form-check mb-3">
+    <input class="form-check-input" type="checkbox" id="rememberDevice" name="rememberDevice">
+    <label class="form-check-label" for="rememberDevice">Trust this device</label>
+  </div>
+
+  <button type="submit" class="btn btn-primary btn-block btn-lg">
+    <i class="fas fa-sign-in-alt me-2"></i>Access Admin Panel
+  </button>
+</form>
+
+
+            <!-- Additional Links -->
+            <div class="auth-links">
+              
+                <p class="text-center mb-0">
+                    Not an administrator? <a href="{% url 'login' %}">User Login</a>
+                </p>
+            </div>
+        </div>
+
+    </main>
+
+  
+
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom JavaScript -->
+    
+        <script>
+  // small helper: toggle password visibility
+  function togglePassword(fieldId, icon) {
+    const passwordField = document.getElementById(fieldId);
+    const iconElement = icon.querySelector('i');
+    if (passwordField.type === 'password') {
+      passwordField.type = 'text';
+      iconElement.classList.remove('fa-eye');
+      iconElement.classList.add('fa-eye-slash');
+    } else {
+      passwordField.type = 'password';
+      iconElement.classList.remove('fa-eye-slash');
+      iconElement.classList.add('fa-eye');
+    }
+  }
+
+  (function () {
+    const form = document.getElementById('adminLoginForm');
+    if (!form) return;
+
+    form.addEventListener('submit', function (e) {
+      // client-only validation; do not block valid submits
+      // hide any previous client alerts
+      const emsg = document.getElementById('errorMessage');
+      if (emsg) emsg.style.display = 'none';
+
+      if (!form.checkValidity()) {
+        e.preventDefault();
+        e.stopPropagation();
+        form.classList.add('was-validated');
+        if (emsg) {
+          document.getElementById('errorText').textContent = 'Please enter valid administrator credentials.';
+          emsg.style.display = 'block';
+        }
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        return;
+      }
+
+      // valid: allow normal POST to server
+      // optional: disable button to avoid double submit
+      const btn = form.querySelector('button[type="submit"]');
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Signing in...';
+      }
+      // DO NOT call preventDefault() here
+    }, { passive: false });
+  })();
+
+
+</script>
+
+        <!-- // // Password Toggle Function
+        // function togglePassword(fieldId, icon) {
+        //     const passwordField = document.getElementById(fieldId);
+        //     const iconElement = icon.querySelector('i');
+            
+        //     if (passwordField.type === 'password') {
+        //         passwordField.type = 'text';
+        //         iconElement.classList.remove('fa-eye');
+        //         iconElement.classList.add('fa-eye-slash');
+        //     } else {
+        //         passwordField.type = 'password';
+        //         iconElement.classList.remove('fa-eye-slash');
+        //         iconElement.classList.add('fa-eye');
+        //     }
+        // }
+
+        // // Auto-format 2FA code (numbers only)
+        // document.getElementById('twoFactorCode').addEventListener('input', function(e) {
+        //     this.value = this.value.replace(/\D/g, '').substring(0, 6);
+        // });
+
+        // // Track failed login attempts (for demo)
+        // let failedAttempts = 0;
+        // const maxAttempts = 3;
+
+        // // Form Validation
+        // document.getElementById('adminLoginForm').addEventListener('submit', function(event) {
+        //     event.preventDefault();
+        //     event.stopPropagation();
+
+        //     const form = this;
+        //     const adminEmail = document.getElementById('adminEmail').value;
+        //     const adminPassword = document.getElementById('adminPassword').value;
+        //     const twoFactorCode = document.getElementById('twoFactorCode').value;
+            
+        //     // Validate form
+        //     if (form.checkValidity()) {
+        //         // Check if account is locked (demo simulation)
+        //         if (failedAttempts >= maxAttempts) {
+        //             document.getElementById('errorText').textContent = 
+        //                 'Account temporarily locked due to multiple failed attempts. Please try again in 15 minutes.';
+        //             document.getElementById('errorMessage').style.display = 'block';
+        //             window.scrollTo({ top: 0, behavior: 'smooth' });
+        //             return;
+        //         }
+
+        //         // Simulate admin credential check (for demo only)
+        //         // In real Django app, this would be handled server-side
+        //         const isValidAdmin = adminEmail === 'admin@kindergarten.com' && adminPassword === 'admin123';
+                
+        //         if (isValidAdmin) {
+        //             // Reset failed attempts
+        //             failedAttempts = 0;
+                    
+        //             // Hide error message
+        //             document.getElementById('errorMessage').style.display = 'none';
+                    
+        //             // Show success message
+        //             document.getElementById('successMessage').style.display = 'block';
+                    
+        //             // Scroll to top
+        //             window.scrollTo({ top: 0, behavior: 'smooth' });
+                    
+        //             // Log admin access
+        //             console.log('Admin login successful:', {
+        //                 email: adminEmail,
+        //                 timestamp: new Date().toISOString(),
+        //                 twoFactor: twoFactorCode ? 'enabled' : 'disabled'
+        //             });
+                    
+        //             // Simulate redirect to admin dashboard after 1.5 seconds
+        //             setTimeout(() => {
+        //                 // window.location.href = '/admin/dashboard/';
+        //                 console.log('Redirect to admin dashboard (disabled for demo)');
+        //                 alert('Admin login successful! Redirecting to admin panel...');
+        //             }, 1500);
+                    
+        //             // Reset validation
+        //             form.classList.remove('was-validated');
+        //         } else {
+        //             // Increment failed attempts
+        //             failedAttempts++;
+                    
+        //             // Show error message with remaining attempts
+        //             const remainingAttempts = maxAttempts - failedAttempts;
+        //             if (remainingAttempts > 0) {
+        //                 document.getElementById('errorText').textContent = 
+        //                     `Invalid administrator credentials. ${remainingAttempts} attempt(s) remaining.`;
+        //             } else {
+        //                 document.getElementById('errorText').textContent = 
+        //                     'Account temporarily locked due to multiple failed attempts. Please try again in 15 minutes.';
+        //             }
+                    
+        //             document.getElementById('errorMessage').style.display = 'block';
+        //             document.getElementById('successMessage').style.display = 'none';
+                    
+        //             // Log failed attempt
+        //             console.warn('Admin login failed:', {
+        //                 email: adminEmail,
+        //                 timestamp: new Date().toISOString(),
+        //                 attempt: failedAttempts
+        //             });
+                    
+        //             // Scroll to top
+        //             window.scrollTo({ top: 0, behavior: 'smooth' });
+                    
+        //             // Shake animation for error
+        //             document.querySelector('.auth-card').style.animation = 'shake 0.5s';
+        //             setTimeout(() => {
+        //                 document.querySelector('.auth-card').style.animation = '';
+        //             }, 500);
+        //         }
+        //     } else {
+        //         // Show validation errors
+        //         form.classList.add('was-validated');
+                
+        //         // Show error message
+        //         document.getElementById('errorText').textContent = 'Please enter valid administrator credentials.';
+        //         document.getElementById('errorMessage').style.display = 'block';
+                
+        //         // Scroll to top
+        //         window.scrollTo({ top: 0, behavior: 'smooth' });
+        //     }
+        // });
+
+        // // Add shake animation
+        // const style = document.createElement('style');
+        // style.textContent = `
+        //     @keyframes shake {
+        //         0%, 100% { transform: translateX(0); }
+        //         10%, 30%, 50%, 70%, 90% { transform: translateX(-10px); }
+        //         20%, 40%, 60%, 80% { transform: translateX(10px); }
+        //     }
+        // `;
+        // document.head.appendChild(style);
+    // </scr> -->
+</body>
+</html>
