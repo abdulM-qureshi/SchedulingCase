@@ -111,6 +111,7 @@ def _collect_context_from_request(request):
     if request.method == 'POST':
         try:
             body = json.loads(request.body)
+            logging.info("We received the request")
         except json.JSONDecodeError as e:
             raise ValueError(f"Invalid JSON data in request body: {e}")
 

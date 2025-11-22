@@ -6,6 +6,16 @@ document.addEventListener('DOMContentLoaded', () => {
     addRoom();
 });
 
+function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(";").shift();
+    return null;
+}
+
+// Debug: Check if CSRF token is available
+console.log('CSRF Token:', getCookie('csrftoken'));
+
 function addRoom() {
     const roomContainer = document.getElementById('room-container');
     const roomIndex = roomContainer.children.length;
@@ -368,10 +378,11 @@ async function generateSchedule() {
     console.log("Sending JSON:", JSON.stringify(data, null, 2));
 
     try {
-        const response = await fetch('http://127.0.0.1:8000/', {
+        const response = await fetch('http://127.0.0.1:8000/Kindergarten/', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken'),  // Add this line
             },
             body: JSON.stringify(data),
         });
@@ -607,16 +618,17 @@ staffMembers.forEach(staffMember => {
 });
 
 try {
-const response = await fetch('http://127.0.0.1:8000/validate/', {
-    method: 'POST',
-    headers: {
-        'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-        updated_schedule: updatedSchedule.updated_schedule,
-        target_hours: target_hours
-    }),
-});
+    const response = await fetch('http://127.0.0.1:8000/validate/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken'),  // Add this line
+        },
+        body: JSON.stringify({
+            updated_schedule: updatedSchedule.updated_schedule,
+            target_hours: target_hours
+        }),
+    });
 
 if (!response.ok) {
     const errorData = await response.json();
